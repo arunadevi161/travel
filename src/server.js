@@ -31,7 +31,7 @@ const Traveller = mongoose.model("Traveller", travelSchema);
 
 // Home page
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index2.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Add Traveller
