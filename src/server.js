@@ -1,22 +1,22 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(
-    "mongodb://user_455982eg5:p455982eg5@db01.dbhost.dev:5050/db_455982eg5"
-)
-.then(() => {
-    console.log("MongoDB connected");
-})
-.catch((error) => {
-    console.log(error);
-});
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log("MongoDB connected");
+    })
+    .catch((error) => {
+        console.log("MongoDB connection error:", error);
+    });
 
-
+// Schema
 const travelSchema = new mongoose.Schema({
     travellerId: String,
     name: String,
@@ -26,34 +26,39 @@ const travelSchema = new mongoose.Schema({
     email: String
 });
 
-
+// Model
 const Traveller = mongoose.model("Traveller", travelSchema);
 
-
+// Home page
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "index2.html"));
 });
 
-
+// Add Traveller
 app.post("/travellers", async (req, res) => {
 
     console.log(req.body);
 
-    const traveller = new Traveller({
-        travellerId: req.body.travellerId,
-        name: req.body.name,
-        destination: req.body.destination,
-        travelDate: req.body.travelDate,
-        budget: req.body.budget,
-        email: req.body.email
-    });
+    try {
+        const traveller = new Traveller({
+            travellerId: req.body.travellerId,
+            name: req.body.name,
+            destination: req.body.destination,
+            travelDate: req.body.travelDate,
+            budget: req.body.budget,
+            email: req.body.email
+        });
 
-    await traveller.save();
+        await traveller.save();
 
-    res.send("Travel buddy added successfully");
+        res.send("Travel buddy added successfully");
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Error adding traveller");
+    }
 });
 
-
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+// Start server
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server running on port ${process.env.PORT || 3000}`);
 });
